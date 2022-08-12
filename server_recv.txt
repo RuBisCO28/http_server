@@ -1,13 +1,18 @@
-GET / HTTP/1.1
+GET /index.html HTTP/1.1
 Host: localhost:8080
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
-Accept-Language: ja,en-US;q=0.7,en;q=0.3
-Accept-Encoding: gzip, deflate
 Connection: keep-alive
+Cache-Control: max-age=0
+sec-ch-ua: "Chromium";v="104", " Not A;Brand";v="99", "Google Chrome";v="104"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "macOS"
 Upgrade-Insecure-Requests: 1
-Sec-Fetch-Dest: document
-Sec-Fetch-Mode: navigate
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
 Sec-Fetch-Site: none
+Sec-Fetch-Mode: navigate
 Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ja,en-US;q=0.9,en;q=0.8
+Cookie: remember_user_token=eyJfcmFpbHMiOnsibWVzc2FnZSI6Ilcxc3pNMTBzSWlReVlTUXhNaVF2TjBsMlkyRmFWR1ZpVEV4VVZXNXpVMnhEU0RZdUlpd2lNVFkxT0RNeE9UTXhOeTQwT1RVME5Ua2lYUT09IiwiZXhwIjoiMjAyMi0wOC0yMFQxMjoxNToxNy40OTVaIiwicHVyIjoiY29va2llLnJlbWVtYmVyX3VzZXJfdG9rZW4ifX0%3D--fa79764586be1a828581c1a20e3408115a4e716d
 
