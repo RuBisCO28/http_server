@@ -7,6 +7,7 @@ from threading import Thread
 import textwrap
 from pprint import pformat
 import re
+import urllib.parse
 
 class WorkerThread(Thread):
   BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -14,7 +15,7 @@ class WorkerThread(Thread):
 
   # extension and MIME Type
   MIME_TYPES = {
-      "html": "text/html",
+      "html": "text/html; charset=UTF-8",
       "css": "text/css",
       "png": "image/png",
       "jpg": "image/jpg",
@@ -52,7 +53,7 @@ class WorkerThread(Thread):
         """
         response_body = textwrap.dedent(html).encode()
 
-        content_type = "text/html"
+        content_type = "text/html; charset=UTF-8"
         response_line = "HTTP/1.1 200 OK\r\n"
 
       elif path == "/show_request":
@@ -73,9 +74,31 @@ class WorkerThread(Thread):
         """
         response_body = textwrap.dedent(html).encode()
 
-        content_type = "text/html"
+        content_type = "text/html; charset=UTF-8"
 
         response_line = "HTTP/1.1 200 OK\r\n"
+
+      elif path == "/parameters":
+        if method == "GET":
+          response_body = b"<html><body><h1>405 Method Not Allowed</h1></body></html>"
+          content_type = "text/html; charset=UTF-8"
+          response_line = "HTTP/1.1 405 Method Not Allowed\r\n"
+
+        elif method == "POST":
+          post_params = urllib.parse.parse_qs(request_body.decode())
+          html = f"""\
+              <html>
+              <body>
+                  <h1>Parameters:</h1>
+                  <pre>{pformat(post_params)}</pre>
+              </body>
+              </html>
+          """
+          response_body = textwrap.dedent(html).encode()
+
+          content_type = "text/html; charset=UTF-8"
+
+          response_line = "HTTP/1.1 200 OK\r\n"
 
       else:
         try:
@@ -88,7 +111,7 @@ class WorkerThread(Thread):
           response_line = "HTTP/1.1 200 OK\r\n"
         except OSError:
           response_body = b"<html><body><h1>404 Not Found</h1></body></html>"
-          content_type = "text/html"
+          content_type = "text/html; charset=UTF-8"
           response_line = "HTTP/1.1 404 Not Found\r\n"
 
       response_header = self.build_response_header(path, response_body, content_type)
