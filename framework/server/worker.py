@@ -6,15 +6,12 @@ from typing import Tuple, Optional
 from threading import Thread
 import re
 
-import views
-from henango.http.request import HTTPRequest
-from henango.http.response import HTTPResponse
+import settings
+from framework.http.request import HTTPRequest
+from framework.http.response import HTTPResponse
 from urls import URL_VIEW
 
-class WorkerThread(Thread):
-  BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-  STATIC_ROOT = os.path.join(BASE_DIR, "static")
-
+class Worker(Thread):
   # extension and MIME Type
   MIME_TYPES = {
     "html": "text/html; charset=UTF-8",
@@ -58,7 +55,7 @@ class WorkerThread(Thread):
           content_type = None
           response = HTTPResponse(body=response_body, content_type=content_type, status_code=200)
         except OSError:
-          traceback.print_exec()
+          traceback.print_exc()
 
           response_body = b"<html><body><h1>404 Not Found</h1></body></html>"
           content_type = "text/html; charset=UTF-8"
@@ -95,9 +92,12 @@ class WorkerThread(Thread):
     return HTTPRequest(method=method, path=path, http_version=http_version, headers=headers, body=request_body)
 
   def get_static_file_content(self, path: str) -> bytes:
+    default_static_root = os.path.join(os.path.dirname(__file__), "../../static")
+    static_root = getattr(settings, "STATIC_ROOT", default_static_root)
+
     # get static file path
     relative_path = path.lstrip("/")
-    static_file_path = os.path.join(self.STATIC_ROOT, relative_path)
+    static_file_path = os.path.join(static_root, relative_path)
 
     # generate response body
     with open(static_file_path, "rb") as f:

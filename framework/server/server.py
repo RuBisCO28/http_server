@@ -1,8 +1,8 @@
 import socket
 
-from workerthread import WorkerThread
+from framework.server.worker import Worker
 
-class WebServer:
+class Server:
   def serve(self):
     print("=== Server: Launch Server ===")
 
@@ -14,7 +14,7 @@ class WebServer:
         (client_socket, address) = server_socket.accept()
         print(f"=== Server: Connection established remote_address: {address} ===")
 
-        thread = WorkerThread(client_socket, address)
+        thread = Worker(client_socket, address)
         thread.start()
 
     finally:
@@ -29,7 +29,3 @@ class WebServer:
     server_socket.bind(("localhost", 8080))
     server_socket.listen(10)
     return server_socket
-
-if __name__ == '__main__':
-  server = WebServer()
-  server.serve()

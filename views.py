@@ -5,8 +5,8 @@ from datetime import datetime
 from pprint import pformat
 from typing import Tuple, Optional
 
-from henango.http.request import HTTPRequest
-from henango.http.response import HTTPResponse
+from framework.http.request import HTTPRequest
+from framework.http.response import HTTPResponse
 
 def now(request: HTTPRequest) -> HTTPResponse:
   html = f"""\
