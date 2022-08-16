@@ -2,14 +2,14 @@ import socket
 from datetime import datetime
 import os
 import traceback
-from typing import Tuple, Optional
+from typing import Tuple
 from threading import Thread
 import re
 
 import settings
 from framework.http.request import HTTPRequest
 from framework.http.response import HTTPResponse
-from urls import URL_VIEW
+from framework.urls.resolver import URLResolver
 
 class Worker(Thread):
   # extension and MIME Type
@@ -45,21 +45,10 @@ class Worker(Thread):
 
       request = self.parse_http_request(request_bytes)
 
-      if request.path in URL_VIEW:
-        view = URL_VIEW[request.path]
-        response = view(request)
-      else:
-        try:
-          # generate response body
-          response_body = self.get_static_file_content(request.path)
-          content_type = None
-          response = HTTPResponse(body=response_body, content_type=content_type, status_code=200)
-        except OSError:
-          traceback.print_exc()
+      view = URLResolver().resolve(request)
 
-          response_body = b"<html><body><h1>404 Not Found</h1></body></html>"
-          content_type = "text/html; charset=UTF-8"
-          response = HTTPResponse(body=response_body, content_type=content_type, status_code=404)
+      # generate response
+      response = view(request)
 
       response_line = self.build_response_line(response)
       response_header = self.build_response_header(response, request)
@@ -90,18 +79,6 @@ class Worker(Thread):
       key, value = re.split(r": *", header_now, maxsplit=1)
       headers[key] = value
     return HTTPRequest(method=method, path=path, http_version=http_version, headers=headers, body=request_body)
-
-  def get_static_file_content(self, path: str) -> bytes:
-    default_static_root = os.path.join(os.path.dirname(__file__), "../../static")
-    static_root = getattr(settings, "STATIC_ROOT", default_static_root)
-
-    # get static file path
-    relative_path = path.lstrip("/")
-    static_file_path = os.path.join(static_root, relative_path)
-
-    # generate response body
-    with open(static_file_path, "rb") as f:
-      return f.read()
 
   def build_response_line(self, response: HTTPResponse) -> str:
     status_line = self.STATUS_LINES[response.status_code]
