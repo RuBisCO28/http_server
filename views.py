@@ -1,5 +1,4 @@
 import textwrap
-from urllib import response
 import urllib.parse
 from datetime import datetime
 from pprint import pformat
@@ -7,81 +6,33 @@ from typing import Tuple, Optional
 
 from framework.http.request import HTTPRequest
 from framework.http.response import HTTPResponse
+from framework.template.renderer import render
 
 def now(request: HTTPRequest) -> HTTPResponse:
-  html = f"""\
-        <html>
-        <body>
-            <h1>Now: {datetime.now()}</h1>
-        </body>
-        </html>
-  """
-  body = textwrap.dedent(html).encode()
-  content_type = "text/html; charset=UTF-8"
+  context = {"now": datetime.now()}
+  body = render("now.html", context)
 
-  return HTTPResponse(body=body, content_type=content_type, status_code=200)
+  return HTTPResponse(body=body)
 
-def show_request(
-  method: str,
-  path: str,
-  http_version: str,
-  request_header: dict,
-  request_body: bytes,
-) -> Tuple[bytes, Optional[str], str]:
-  html = f"""\
-      <html>
-      <body>
-          <h1>Request Line:</h1>
-          <p>
-              {method} {path} {http_version}
-          </p>
-          <h1>Headers:</h1>
-          <pre>{pformat(request_header)}</pre>
-          <h1>Body:</h1>
-          <pre>{request_body.decode("utf-8", "ignore")}</pre>
+def show_request(request: HTTPRequest) -> HTTPResponse:
+  context = {"request": request, "headers": pformat(request.headers), "body": request.body.decode("utf-8", "ignore")}
+  body = render("show_request.html", context)
 
-      </body>
-      </html>
-  """
-  body = textwrap.dedent(html).encode()
-  content_type = "text/html; charset=UTF-8"
-
-  return HTTPResponse(body=body, content_type=content_type, status_code=200)
+  return HTTPResponse(body=body)
 
 def parameters(request: HTTPRequest) -> HTTPResponse:
   if request.method == "GET":
     body = b"<html><body><h1>405 Method Not Allowed</h1></body></html>"
-    content_type = "text/html; charset=UTF-8"
-    status_code = 405
+    return HTTPResponse(body=body, status_code = 405)
 
   elif request.method == "POST":
-    post_params = urllib.parse.parse_qs(request.body.decode())
-    html = f"""\
-        <html>
-        <body>
-            <h1>Parameters:</h1>
-            <pre>{pformat(post_params)}</pre>
-        </body>
-        </html>
-    """
-    body = textwrap.dedent(html).encode()
-    content_type = "text/html; charset=UTF-8"
-    status_code = 200
+    context = {"params": urllib.parse.parse_qs(request.body.decode())}
+    body = render("parameters.html", context)
 
-  return HTTPResponse(body=body, content_type=content_type, status_code=status_code)
+    return HTTPResponse(body=body)
 
 def user_profile(request: HTTPRequest) -> HTTPResponse:
-  user_id = request.params["user_id"]
-  html = f"""\
-    <html>
-    <body>
-        <h1>Profile</h1>
-        <p>ID: {user_id}
-    </body>
-    </html>
-  """
-  body = textwrap.dedent(html).encode()
-  content_type = "text/html; charset=UTF-8"
-  status_code = 200
+  context = {"user_id": request.params["user_id"]}
+  body = render("user_profile.html", context)
 
-  return HTTPResponse(body=body, content_type=content_type, status_code=status_code)
+  return HTTPResponse(body=body)
